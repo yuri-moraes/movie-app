@@ -3,7 +3,7 @@ import SearchBar from "@/components/SearchBar";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { fetchMovies } from "@/services/api";
-import useFetch from "@/services/useFetch";
+import useFetch from "@/services/usefetch";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -62,7 +62,7 @@ const Index = () => {
 
               <FlatList
                 data={movies}
-                renderItem={({ item }) => <MovieCard {...item} />}
+                renderItem={({ item }) => (<MovieCard {...item} /> )}
                 keyExtractor={(item) => item.id.toString()}
                 numColumns={3}
                 columnWrapperStyle={{
