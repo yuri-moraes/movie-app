@@ -1,8 +1,10 @@
 import MovieCard from "@/components/MovieCard";
 import SearchBar from "@/components/SearchBar";
+import TrendingCard from "@/components/TrendingCard";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { fetchMovies } from "@/services/api";
+import { getTrendindMovies } from "@/services/appwrite";
 import useFetch from "@/services/usefetch";
 import { useRouter } from "expo-router";
 import {
@@ -16,6 +18,12 @@ import {
 
 const Index = () => {
   const router = useRouter();
+
+  const {
+    data: trendingMovies,
+    loading: trendingsLoading,
+    error: trendingsError,
+  } = useFetch(getTrendindMovies);
 
   const {
     data: movies,
@@ -38,14 +46,14 @@ const Index = () => {
       >
         <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
 
-        {moviesLoading ? (
+        {moviesLoading || trendingsLoading ? (
           <ActivityIndicator
             size="large"
             color="#0000ff"
             className="mt-10 self-center"
           />
-        ) : moviesError ? (
-          <Text>Error: {moviesError?.message}</Text>
+        ) : moviesError || trendingsError? (
+          <Text>Error: {moviesError?.message || trendingsError?.message}</Text>
         ) : (
           <View className="flex-1 mt-5">
             <SearchBar
@@ -54,6 +62,23 @@ const Index = () => {
               }}
               placeholder="Search for a movie"
             />
+
+            {trendingMovies && (
+              <View className="text-lg text-white">
+                <Text className="text-ls text-white font-bold mb-3">
+                  Trending Movies
+                </Text>
+                <FlatList 
+                  showsHorizontalScrollIndicator={false}
+                  ItemSeparatorComponent={()=> <View className="w-4"/>}
+                  data={trendingMovies}
+                  renderItem={({item, index})=> (
+                    <TrendingCard index={index} movie={item}/>
+                  )}
+                  keyExtractor={(item)=> item.movie_id.toString()}
+                />
+              </View>
+            )}
 
             <>
               <Text className="text-lg text-white font-bold mt-5 mb-3">
