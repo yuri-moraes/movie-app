@@ -1,29 +1,32 @@
-import MovieCard from "@/components/MovieCard";
-import SearchBar from "@/components/SearchBar";
-import TrendingCard from "@/components/TrendingCard";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  ScrollView,
+  Image,
+  FlatList,
+} from "react-native";
+import { useRouter } from "expo-router";
+
+import useFetch from "@/services/usefetch";
+import { fetchMovies } from "@/services/api";
+import { getTrendingMovies } from "@/services/appwrite";
+
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
-import { fetchMovies } from "@/services/api";
-import { getTrendindMovies } from "@/services/appwrite";
-import useFetch from "@/services/usefetch";
-import { useRouter } from "expo-router";
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+
+import SearchBar from "@/components/SearchBar";
+import MovieCard from "@/components/MovieCard";
+import TrendingCard from "@/components/TrendingCard";
 
 const Index = () => {
   const router = useRouter();
 
   const {
     data: trendingMovies,
-    loading: trendingsLoading,
-    error: trendingsError,
-  } = useFetch(getTrendindMovies);
+    loading: trendingLoading,
+    error: trendingError,
+  } = useFetch(getTrendingMovies);
 
   const {
     data: movies,
@@ -46,14 +49,14 @@ const Index = () => {
       >
         <Image source={icons.logo} className="w-12 h-10 mt-20 mb-5 mx-auto" />
 
-        {moviesLoading || trendingsLoading ? (
+        {moviesLoading || trendingLoading ? (
           <ActivityIndicator
             size="large"
             color="#0000ff"
             className="mt-10 self-center"
           />
-        ) : moviesError || trendingsError? (
-          <Text>Error: {moviesError?.message || trendingsError?.message}</Text>
+        ) : moviesError || trendingError ? (
+          <Text>Error: {moviesError?.message || trendingError?.message}</Text>
         ) : (
           <View className="flex-1 mt-5">
             <SearchBar
@@ -64,18 +67,23 @@ const Index = () => {
             />
 
             {trendingMovies && (
-              <View className="text-lg text-white">
-                <Text className="text-ls text-white font-bold mb-3">
+              <View className="mt-10">
+                <Text className="text-lg text-white font-bold mb-3">
                   Trending Movies
                 </Text>
-                <FlatList 
+                <FlatList
+                  horizontal
                   showsHorizontalScrollIndicator={false}
-                  ItemSeparatorComponent={()=> <View className="w-4"/>}
+                  className="mb-4 mt-3"
                   data={trendingMovies}
-                  renderItem={({item, index})=> (
-                    <TrendingCard index={index} movie={item}/>
+                  contentContainerStyle={{
+                    gap: 26,
+                  }}
+                  renderItem={({ item, index }) => (
+                    <TrendingCard movie={item} index={index} />
                   )}
-                  keyExtractor={(item)=> item.movie_id.toString()}
+                  keyExtractor={(item) => item.movie_id.toString()}
+                  ItemSeparatorComponent={() => <View className="w-4" />}
                 />
               </View>
             )}
@@ -87,7 +95,7 @@ const Index = () => {
 
               <FlatList
                 data={movies}
-                renderItem={({ item }) => (<MovieCard {...item} /> )}
+                renderItem={({ item }) => <MovieCard {...item} />}
                 keyExtractor={(item) => item.id.toString()}
                 numColumns={3}
                 columnWrapperStyle={{
